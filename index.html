@@ -1,0 +1,259 @@
+<html>
+    <head>
+        <title>Calculator</title>
+    </head>
+    <style>
+        #calculator{
+            width: 350px;
+            border: 5px solid black;
+            padding: 15px;
+            background-color: lightgray;
+        }
+        
+        #calculatorbuttons{
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            grid-template-rows: auto auto auto auto;
+            grid-column-gap: 0; 
+            grid-row-gap: 5px;
+        }
+        #display{
+            width: 316px;
+            height: 35px;
+            border: 3px solid black;
+            border-radius: 25px;
+            padding: 5px;
+            text-align: right;
+            margin-bottom: 10px;
+            padding-top: 20px;
+            background-color: white;
+            padding-right: 15px;
+        }
+        
+        .digitbuttons{
+            border: 2px solid transparent;
+            border-radius: 50px;
+            width: 80px;
+            height: 80px;
+            background-color: blue;
+            outline: none; !important;
+        }
+        
+        .digitbuttons:active{
+            border: 2px solid black;
+            background-color: #0000F0;
+        }
+        
+        .operationbuttons{
+            border: 2px solid transparent;
+            border-radius: 50px;
+            width: 80px;
+            height: 80px;
+            background-color: orange;
+            outline: none; !important;
+        }
+        
+        .operationbuttons:active{
+            border: 2px solid black;
+            background-color: #8A5F00;
+        }
+        
+        .otherbuttons{
+            border: 2px solid transparent;
+            border-radius: 50px;
+            width: 80px;
+            height: 80px;
+            background-color: #00A000;
+            outline: none; !important;
+        }
+        
+        .otherbuttons:active{
+            border: 2px solid black;
+            background-color: green;
+        }
+        
+        #dig0{
+            grid-column-start: 1;
+            grid-column-end: 3;
+            width: 170px;
+        }
+    </style>
+    <body>
+        <div id="calculator">
+            <div id="display">0</div>
+            <div id="calculatorbuttons">
+                <button class="otherbuttons">AC</button>
+                <button class="otherbuttons">C</button>
+                <button class="otherbuttons">+/-</button>
+                <button class="operationbuttons">+</button>
+                <button class="digitbuttons" data-number="7">7</button>
+                <button class="digitbuttons" data-number="8">8</button>
+                <button class="digitbuttons" data-number="9">9</button>
+                <button class="operationbuttons">-</button>
+                <button class="digitbuttons" data-number="4">4</button>
+                <button class="digitbuttons" data-number="5">5</button>
+                <button class="digitbuttons" data-number="6">6</button>
+                <button class="operationbuttons">*</button>
+                <button class="digitbuttons" data-number="1">1</button>
+                <button class="digitbuttons" data-number="2">2</button>
+                <button class="digitbuttons" data-number="3">3</button>
+                <button class="operationbuttons">/</button>
+                <button class="digitbuttons" id="dig0">0</button>
+                <button class="otherbuttons">.</button>
+                <button class="operationbuttons">=</button>
+            </div>
+        </div>
+    </body>
+    <script>
+        //Did an easier variation (that's not eval), but I will work on doing it thru a built equation parser later on.
+        /*function add(num1, num2){
+            return Math.round((num1 + num2) * 1000) / 1000;
+        }
+        
+        function subtract(num1, num2){
+            return Math.round((num1 - num2) * 1000) / 1000;
+        }
+        
+        function multiply(num1, num2){
+            return Math.round((num1 * num2) * 1000) / 1000;
+        }
+        
+        function divide(num1, num2){
+            return Math.round((num1 / num2) * 1000) / 1000;
+        }
+        
+        function operate(num1, operator, num2){
+            switch(operator){
+                case '+': { return add(num1,num2); }
+                case '-': { return subtract(num1, num2); }
+                case '*': { return multiply(num1, num2); }
+                case '/': { return divide(num1, num2); }
+                default: break;
+            }
+        }*/
+        
+        const lengthError = () => { calcDisplay.textContent = 'You typed in too many digits/operations.'; }
+        
+        let operationInput = false;
+        let calculatedVal = 0;
+        let digitNum = 1;
+        let calculated = false;
+        let operationNum = 0;
+        let length = 1;
+        let hasDot = 0;
+        let calcDisplay = document.querySelector('#display');
+        let digitButtons = document.querySelectorAll('.digitbuttons');
+        digitButtons.forEach(button => button.addEventListener('click', function(){
+            let digit = button.textContent;
+            
+            if(calculated == false) {
+            if (calcDisplay.textContent == 0 && length <= 39){
+                if(calcDisplay.textContent.includes('.') == true){
+                    calcDisplay.textContent += digit;
+                }
+                else {calcDisplay.textContent = digit; }
+            }
+            else{
+                calcDisplay.textContent += digit;
+            }
+            if(length > 39) { lengthError(); }
+            }
+            else { 
+                if(operationNum > digitNum) 
+                {
+                    calculated = false; 
+                    calcDisplay.textContent += digit;
+                }
+                else {
+                    if(hasDot == 1){
+                        calculated = false;
+                        calcDisplay.textContent += digit;
+                    }
+                    else { 
+                        calculated = false;
+                        calcDisplay.textContent = digit;
+                    }
+                }
+            }
+            length++;
+            digitNum++;
+            operationNum = 0;
+        }));
+        
+        let operButtons = document.querySelectorAll('.operationbuttons');
+        operButtons.forEach(button => button.addEventListener('click', function(){
+            let operation = button.textContent;
+            
+            if(operation != '=' && length <= 39){
+                    if(operationNum <= digitNum) { calcDisplay.textContent += operation; }
+                    operationNum = digitNum+1; 
+                    operationInput = true;
+                    length++;
+                    digitNum = 1;
+                    hasDot = 0;
+            }
+            if(length > 39) { lengthError(); }
+            
+            if(operation == '='){
+                if (length > 39) { return; }
+                
+                function calculateStr(userInput) {
+                    var func = new Function('return ' + userInput);
+                    return func();
+                }
+                
+                calculatedVal = calculateStr(calcDisplay.textContent);
+                calcDisplay.textContent = Math.round(calculatedVal * 1000) / 1000;
+                calculatedVal = 0;
+                calculated = true;
+                operationInput = false;
+                if (calcDisplay.textContent.includes('.') === true) { hasDot = 1; }
+                else { hasDot = 0; }
+                if (calcDisplay.textContent === 'Infinity') { calcDisplay.textContent = 'You can\'t divide with 0.'; }
+            }
+        }));
+            
+        let otherButtons = document.querySelectorAll('.otherbuttons');
+        otherButtons.forEach(button => button.addEventListener('click', function(){
+            let funct = button.textContent;
+            
+            if(funct == 'AC'){
+                if (length > 39) { return; }
+                calcDisplay.textContent = 0;
+            }
+            
+            if(funct == 'C'){
+                if (length > 39) { return; }
+                if(calcDisplay.textContent == 0){ return; }
+                calcDisplay.textContent = calcDisplay.textContent.substring(0, calcDisplay.textContent.length-1);
+            }
+            
+            if(funct == '+/-'){
+                if (length > 39) { return; }
+                if(operationInput === false){
+                calcDisplay.textContent = -calcDisplay.textContent;
+                }
+            }
+            
+            if(funct == '.'){
+                if (length > 39) { return; }
+                if(hasDot == 0){
+                    calcDisplay.textContent += '.';
+                    hasDot = 1;
+                }
+                else { return; }
+            }
+        }));
+        
+        document.addEventListener('keydown', function(event){
+            if(event.keyCode === 8){
+                if (length > 39) { return; }
+                if(calcDisplay.textContent == 0){ return; }
+                calcDisplay.textContent = calcDisplay.textContent.substring(0, calcDisplay.textContent.length-1);
+            }
+            if(event.keyCode === 46){
+                
+            }
+        });
+    </script>
+</html>
